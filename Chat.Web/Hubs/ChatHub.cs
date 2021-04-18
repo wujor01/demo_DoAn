@@ -38,7 +38,7 @@ namespace Chat.Web.Hubs
         private readonly static Dictionary<string, string> _ConnectionsMap = new Dictionary<string, string>();
         #endregion
 
-        private readonly string aesKey = "KM@AesKey";
+        private readonly string aesKey = "b14ca5898a4e4133bbce2ea2315a1916";
 
         public int Send(int roomId, string fromUserId, string toUserId, string message)
         {
