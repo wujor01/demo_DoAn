@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using System.Web.Script.Serialization;
+using Chat.Web.Helpers;
 
 namespace Chat.Web.Hubs
 {
@@ -37,12 +38,15 @@ namespace Chat.Web.Hubs
         private readonly static Dictionary<string, string> _ConnectionsMap = new Dictionary<string, string>();
         #endregion
 
+        private readonly string aesKey = "KM@AesKey";
+
         public int Send(int roomId, string fromUserId, string toUserId, string message)
         {
+            //Mã hóa AES
+            AESHelper aesHelper = new AESHelper();
+            message = aesHelper.EncryptString(aesKey, message);
 
-
-
-            if(roomId != 0 && roomId != null)
+            if (roomId != 0)
             {
                 return SendToRoom(roomId, message);
             }
@@ -73,6 +77,10 @@ namespace Chat.Web.Hubs
                     db.SaveChanges();
                     int idMess = msg.Id; 
                     var messageViewModel = Mapper.Map<Message, MessageViewModel>(msg);
+
+                    //Giải mã AES
+                    AESHelper aesHelper = new AESHelper();
+                    messageViewModel.Content = aesHelper.DecryptString(aesKey, messageViewModel.Content);
                     try
                     {
                         string userId;
@@ -128,6 +136,9 @@ namespace Chat.Web.Hubs
                     int idMess = msg.Id;
                     // Broadcast the message
                     var messageViewModel = Mapper.Map<Message, MessageViewModel>(msg);
+                    //Giải mã AES
+                    AESHelper aesHelper = new AESHelper();
+                    messageViewModel.Content = aesHelper.DecryptString(aesKey, messageViewModel.Content);
                     Clients.Group(roomId.ToString()).newMessage(messageViewModel);
                     return idMess;
                 }
@@ -438,6 +449,14 @@ namespace Chat.Web.Hubs
                     .AsEnumerable()
                     .Reverse()
                     .ToList();
+
+                    //Giải mã AES
+                    AESHelper aesHelper = new AESHelper();
+                    foreach (var item in messageHistory)
+                    {
+                        item.Content = aesHelper.DecryptString(aesKey, item.Content);
+                    }
+
                     return Mapper.Map<IEnumerable<Message>, IEnumerable<MessageViewModel>>(messageHistory);
                 }
                 else if (fromUserId != "" && toUserId != "")
@@ -448,6 +467,13 @@ namespace Chat.Web.Hubs
                     .AsEnumerable()
                     .Reverse()
                     .ToList();
+
+                    //Giải mã AES
+                    AESHelper aesHelper = new AESHelper();
+                    foreach (var item in messageHistory)
+                    {
+                        item.Content = aesHelper.DecryptString(aesKey, item.Content);
+                    }
                     return Mapper.Map<IEnumerable<Message>, IEnumerable<MessageViewModel>>(messageHistory);
                 }
                 else
