@@ -16,7 +16,18 @@ $(function () {
         model.joinRoom(null);
     });
 
+    var keyAes = 'p@ssword123';
 
+    //aes
+    function encrypt(message = '', key = '') {
+        var message = CryptoJS.AES.encrypt(message, key);
+        return message.toString();
+    }
+    function decrypt(message = '', key = '') {
+        var code = CryptoJS.AES.decrypt(message, key);
+        var decryptedMessage = code.toString(CryptoJS.enc.Utf8);
+        return decryptedMessage;
+    }
 
     // Client Operations
     chatHub.client.updateChatRoom = function(roomView){
@@ -30,7 +41,7 @@ $(function () {
         console.log("change pin");
         var message = new ChatMessage(
             messageView.Id,
-            messageView.Content,
+            decrypt(messageView.Content, keyAes),
             messageView.Timestamp,
             messageView.From,
             null,
@@ -49,7 +60,7 @@ $(function () {
         var isMine = messageView.From === model.myName();
         var message = new ChatMessage(
             messageView.Id,
-            messageView.Content,
+            encrypt(messageView.Content, keyAes),
             messageView.Timestamp,
             messageView.From,
             isMine,
@@ -213,7 +224,7 @@ $(function () {
                 let message = self.chatMessages.pop();
                 let updateMessage = new ChatMessage(
                     result,
-                    message.content(),
+                    decrypt(message.content(), keyAes),
                     message.timestamp(),
                     message.from(),
                     message.isMine(),
@@ -515,7 +526,7 @@ $(function () {
                         self.chatMessages.push(new ChatMessage(
                             result[i].Id,
                             result[i].Content,
-                            result[i].Timestamp,
+                            decrypt(result[i].Timestamp, keyAes),
                             result[i].From,
                             isMine,
                             result[i].Avatar,
@@ -523,7 +534,7 @@ $(function () {
                         )
                         if (result[i].Stick == 1) {
                             self.pinnedMessages.id(result[i].Id);
-                            self.pinnedMessages.content(result[i].Content);
+                            self.pinnedMessages.content(decrypt(result[i].Content), keyAes);
                             self.pinnedMessages.timestamp(result[i].Timestamp);
                             self.pinnedMessages.from(result[i].From);
                             self.pinnedMessages.isMine(isMine);

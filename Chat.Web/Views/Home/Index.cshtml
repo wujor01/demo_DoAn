@@ -10,6 +10,7 @@
     <script src="~/Scripts/MyChat.js"></script>
     <script src="~/Scripts/MyScript.js"></script>
     <script src="~/signalr/hubs"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
 }
 
 <div class="row main-container">
@@ -76,7 +77,7 @@
                             <span class="author" data-bind="text:$data.from"></span>
                             <span class="timestamp">
                                 <i class="glyphicon glyphicon-time"></i>
-                                <span ></span>
+                                <span></span>
                             </span>
                             <span class="content" data-bind="html:$data.content"></span>
 
@@ -84,7 +85,7 @@
                         <div class="stick-message">
                             <a href="#" data-bind="click: $parent.stickMess.bind($parent, $data)"><span class="glyphicon glyphicon-pushpin stick"></span></a>
                         </div>
-                        
+
                     </div>
                 </li>
             </ul>
