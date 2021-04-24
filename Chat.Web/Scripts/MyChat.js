@@ -16,9 +16,8 @@ $(function () {
         model.joinRoom(null);
     });
 
+    //#region AES En-Decrypt
     var keyAes = 'p@ssword123';
-
-    //aes
     function encrypt(message = '', key = '') {
         var message = CryptoJS.AES.encrypt(message, key);
         return message.toString();
@@ -28,9 +27,9 @@ $(function () {
         var decryptedMessage = code.toString(CryptoJS.enc.Utf8);
         return decryptedMessage;
     }
-
-    // Client Operations
-    chatHub.client.updateChatRoom = function(roomView){
+    //#endregion
+    //#region Client Operations
+    chatHub.client.updateChatRoom = function (roomView) {
         model.userRoomList(roomView.Id);
     };
     chatHub.client.updateUser = function (userView) {
@@ -80,7 +79,7 @@ $(function () {
 
     chatHub.client.addUser = function (user) {
         model.userAdded(new ChatUser(
-            user.Id, 
+            user.Id,
             user.Username,
             user.DisplayName,
             user.Avatar,
@@ -137,7 +136,8 @@ $(function () {
         // Join to the first room in list
         $("ul#room-list li a")[0].click();
     };
-
+    //#endregion
+    //#region Server Operations
     var Model = function () {
         var self = this;
         self.message = ko.observable("");
@@ -178,7 +178,7 @@ $(function () {
             return true;
         }
         self.filter = ko.observable("");
-        self.forceUpdate  = ko.observable("");
+        self.forceUpdate = ko.observable("");
         self.filteredChatUsers = ko.computed(function () {
             if (!self.filter()) {
                 return ko.utils.arrayFilter(self.chatUsers(), function (user) {
@@ -199,7 +199,7 @@ $(function () {
                         return displayName.includes(self.filter().toLowerCase());
                     });
                 }
-                
+
             }
         });
     };
@@ -251,12 +251,12 @@ $(function () {
             $('#room-list a').removeClass('active');
 
             if (room) {
-                self.joinedRoom.id = room.roomId() ? room.roomId() : 0 ;
+                self.joinedRoom.id = room.roomId() ? room.roomId() : 0;
                 self.joinedRoom.name = room.name() ? room.name() : "";
             }
-            
+
             self.chatMessages.removeAll();
-            
+
             chatHub.server.join(self.joinedRoom.id).done(function () {
                 self.userRoomList(self.joinedRoom.id);
                 self.messageHistory(null, null);
@@ -344,7 +344,7 @@ $(function () {
                 }
             });
         },
-      
+
         userList: function () {
             var self = this;
             chatHub.server.getOnlineUsers().done(function (result) {
@@ -360,11 +360,11 @@ $(function () {
                     );
                 }
             });
-            
+
         },
 
         userRoomList: function (roomId) {
-            var self = this; 
+            var self = this;
 
             chatHub.server.getUsersRoom(roomId).done(function (result) {
                 self.chatUserRooms.removeAll();
@@ -431,7 +431,7 @@ $(function () {
             if (name != null && name != "") {
                 let userSelected = "";
                 for (var i = 0; i < self.userSelected().length; i++) {
-                    userSelected += self.userSelected()[i].id() + ";" + self.userSelected()[i].userName() +"|";
+                    userSelected += self.userSelected()[i].id() + ";" + self.userSelected()[i].userName() + "|";
                 }
                 userSelected += self.myUserId() + ";" + self.myUserName();
                 chatHub.server.createRoom(name, userSelected).done(function (result) {
@@ -453,7 +453,7 @@ $(function () {
             else {
                 console.log("Tên phòng không được để trống!");
             }
-            
+
         },
 
         editRoom: function () {
@@ -513,13 +513,13 @@ $(function () {
             if (fromUserId != null && toUserId != null) {
                 roomId = 0;
             }
-            else { 
+            else {
                 roomId = self.joinedRoom.id;
             }
             chatHub.server.getMessageHistory(roomId, fromUserId, toUserId).done(function (result) {
                 self.chatMessages.removeAll();
 
-                
+
                 if (result) {
                     for (var i = 0; i < result.length; i++) {
                         var isMine = result[i].From == self.myName();
@@ -555,7 +555,7 @@ $(function () {
             self.chatRooms.push(room);
         },
 
-        roomDeleted: function(id){
+        roomDeleted: function (id) {
             var self = this;
             var temp;
             ko.utils.arrayForEach(self.chatRooms(), function (room) {
@@ -579,7 +579,7 @@ $(function () {
             }
         },
 
-        
+
         userRemoved: function (id) {
             var self = this;
             if (self.chatUsers().length > 0) {
@@ -613,7 +613,7 @@ $(function () {
                     }
                 }
             }
-            
+
         },
 
         addUserToRoom: function (user, type) {
@@ -626,7 +626,7 @@ $(function () {
                 self.notChatUserRooms.remove(user);
                 self.chatUserRooms.push(user);
             }
-            
+
         },
         removeUserSelectedRoom: function (user, type) {
             var self = this;
@@ -640,8 +640,8 @@ $(function () {
             }
         },
     };
-
-    // Represent server data
+    //#endregion
+    //#region Represent server data
     function ChatRoom(roomId, name) {
         var self = this;
         self.roomId = ko.observable(roomId);
@@ -658,7 +658,7 @@ $(function () {
         self.device = ko.observable(device);
         self.roomRole = ko.observable(roomRole);
     }
-    
+
     function ChatMessage(id, content, timestamp, from, isMine, avatar, stick) {
         var self = this;
         self.id = ko.observable(id);
@@ -669,6 +669,8 @@ $(function () {
         self.avatar = ko.observable(avatar);
         self.stick = ko.observable(stick);
     }
+
+    //#endregion
 
     var model = new Model();
     ko.applyBindings(model);
