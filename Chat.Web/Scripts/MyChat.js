@@ -527,7 +527,7 @@ $(function () {
                 debugger;
                 if (result) {
                     for (var i = 0; i < result.length; i++) {
-                        console.log(i + ": " + result[i].Content);
+                        console.log("Bản mã "+ i + ": " + result[i].Content);
                         var isMine = result[i].From == self.myName();
                         self.chatMessages.push(new ChatMessage(
                             result[i].Id,
