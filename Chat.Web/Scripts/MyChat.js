@@ -229,7 +229,7 @@ $(function () {
                 let message = self.chatMessages.pop();
                 let updateMessage = new ChatMessage(
                     result,
-                    decrypt(message.content(), keyAes),
+                    message.content(),
                     message.timestamp(),
                     message.from(),
                     message.isMine(),
@@ -527,6 +527,7 @@ $(function () {
                 debugger;
                 if (result) {
                     for (var i = 0; i < result.length; i++) {
+                        console.log(i + ": " + result[i].Content);
                         var isMine = result[i].From == self.myName();
                         self.chatMessages.push(new ChatMessage(
                             result[i].Id,
@@ -539,7 +540,7 @@ $(function () {
                         )
                         if (result[i].Stick == 1) {
                             self.pinnedMessages.id(result[i].Id);
-                            self.pinnedMessages.content(decrypt(result[i].Content), keyAes);
+                            self.pinnedMessages.content(result[i].Content);
                             self.pinnedMessages.timestamp(result[i].Timestamp);
                             self.pinnedMessages.from(result[i].From);
                             self.pinnedMessages.isMine(isMine);
