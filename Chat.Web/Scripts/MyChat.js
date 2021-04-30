@@ -6,6 +6,7 @@ $(function () {
 
     var chatHub = $.connection.chatHub;
     $.connection.hub.start().done(function () {
+        debugger;
         console.log("SignalR started");
         model.roomList();
         model.userList();
@@ -37,6 +38,7 @@ $(function () {
     };
 
     chatHub.client.pinMessage = function (messageView) {
+        debugger;
         console.log("change pin");
         var message = new ChatMessage(
             messageView.Id,
@@ -55,11 +57,11 @@ $(function () {
         model.unpinMess();
     };
     chatHub.client.newMessage = function (messageView) {
-
+        debugger;
         var isMine = messageView.From === model.myName();
         var message = new ChatMessage(
             messageView.Id,
-            encrypt(messageView.Content, keyAes),
+            decrypt(messageView.Content, keyAes),
             messageView.Timestamp,
             messageView.From,
             isMine,
@@ -216,11 +218,14 @@ $(function () {
             else {
                 roomId = self.joinedRoom.id;
             }
+            debugger;
             console.log(roomId);
             console.log(self.myUserId());
             console.log(self.toUserId());
             console.log(self.message());
-            chatHub.server.send(roomId, self.myUserId(), self.toUserId(), self.message()).done(function (result) {
+            var enMesseage = encrypt(self.message(), keyAes);
+            console.log(enMesseage);
+            chatHub.server.send(roomId, self.myUserId(), self.toUserId(), enMesseage).done(function (result) {
                 let message = self.chatMessages.pop();
                 let updateMessage = new ChatMessage(
                     result,
@@ -519,14 +524,14 @@ $(function () {
             chatHub.server.getMessageHistory(roomId, fromUserId, toUserId).done(function (result) {
                 self.chatMessages.removeAll();
 
-
+                debugger;
                 if (result) {
                     for (var i = 0; i < result.length; i++) {
                         var isMine = result[i].From == self.myName();
                         self.chatMessages.push(new ChatMessage(
                             result[i].Id,
-                            result[i].Content,
-                            decrypt(result[i].Timestamp, keyAes),
+                            decrypt(result[i].Content, keyAes),
+                            result[i].Timestamp,
                             result[i].From,
                             isMine,
                             result[i].Avatar,
